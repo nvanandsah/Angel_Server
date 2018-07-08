@@ -1,28 +1,23 @@
 from flask import Flask, json, request, render_template, jsonify
 import sqlite3
+import datetime
+import time
 app = Flask(__name__)
 try:
     conn = sqlite3.connect('connection.db')
-    conn.execute('CREATE TABLE data (timestamp TEXT, json_Dump TEXT)')
+    conn.execute('CREATE TABLE data2 (timestamp TEXT, json_Dump TEXT)')
     conn.close()
 except Exception:
     pass
 
 @app.route('/store/<st>')
 def hello_world(st = None):
-    res = st.split(",");
-    timestamp = res[0]
-    res = res[1:]
-    res3 = {}
-    del res[1::2]
-    for i in res:
-        res3[i] = st.count(i)
     with sqlite3.connect("connection.db") as con:
         cur = con.cursor()
-        cur.execute("INSERT INTO data (timestamp,json_dump) VALUES (?,?)",(timestamp ,json.dumps(res3)))
+        cur.execute("INSERT INTO data (timestamp,json_dump) VALUES (?,?)",(datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S') ,st))
         con.commit()
 #        con.close()
-    return json.dumps(res3)
+    return json.dumps(st)
 
 
 @app.route('/get')
